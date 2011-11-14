@@ -1,1 +1,5 @@
 *~
+*.o
+*/bin
+*.a
+tlpi-dist/lib/ename.c.inc
