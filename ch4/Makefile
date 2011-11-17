@@ -11,6 +11,9 @@ src/simple_copy.o: src/simple_copy.c
 bin:
 	mkdir bin
 
+${TLPI_LIB}/error_functions.o:
+	cd ${TLPI_LIB} ; make
+
 clean:
 	rm -rf bin
 	rm src/*.o
