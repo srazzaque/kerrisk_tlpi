@@ -1,7 +1,7 @@
 include Makefile.inc
 
 
-all: bin/simple_copy bin/oexcl bin/reading bin/seek_io bin/tee
+all: bin/simple_copy bin/oexcl bin/reading bin/seek_io bin/tee bin/cphole
 
 bin/simple_copy: src/simple_copy.o ${TLPI_LIB}/error_functions.o bin
 	${CC} src/simple_copy.o ${TLPI_LIB}/error_functions.o -o bin/simple_copy
@@ -17,6 +17,9 @@ bin/seek_io: src/seek_io.o ${TLPI_LIB}/error_functions.o bin
 
 bin/tee: src/tee.o ${TLPI_LIB}/error_functions.o bin
 	${CC} src/tee.o ${TLPI_LIB}/error_functions.o -o bin/tee
+
+bin/cphole: src/cphole.o ${TLPI_LIB}/error_functions.o bin
+	${CC} src/cphole.o ${TLPI_LIB}/error_functions.o -o bin/cphole
 
 src/simple_copy.o: src/simple_copy.c
 	cd src ; make
