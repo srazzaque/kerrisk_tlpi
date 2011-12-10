@@ -14,7 +14,7 @@ main(int argc, char *argv[])
   char data[20] = "yo yo wattup?";
 
   printf("Opening a file\n");
-  int fd = open( argv[1], O_CREAT | O_WRONLY | O_APPEND );
+  int fd = open( argv[1], O_CREAT | O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
   if (fd == -1)
     errExit("open");
 
@@ -38,7 +38,7 @@ main(int argc, char *argv[])
 
   printf("Current offset: %ld\n", (long) os);
 
-  printf("Closing file");
+  printf("Closing file\n");
   if (close(fd) == -1)
     errExit("close");
 
