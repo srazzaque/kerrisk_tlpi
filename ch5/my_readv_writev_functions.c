@@ -46,20 +46,34 @@ my_readv(int fd, const struct iovec *iov, int iovcnt)
 ssize_t
 my_writev(int fd, const struct iovec *iov, int iovcnt)
 {
-  // Create a buffer to store everything from all the struct iov objects
-
-  // Work out how many bytes we need
-
-  // Allocate memory for the buffer
+  
+  size_t total_bytes_to_write, j;
+  ssize_t bytes_written;
+  void *buff;
+  int i;
+  
+  // Work out how many bytes we need and create a buffer to store everything from all the struct iov
+  // objects
+  total_bytes_to_write = count_bytes_to_read(iov, iovcnt);
+  buff = malloc(total_bytes_to_write);
 
   // Copy everything from the structs into the above buffer
+  for (i=0, j=0; i < iovcnt; i++) {
+    if (memcpy((buff+j), (iov+i)->iov_base, (iov+i)->iov_len) == NULL)
+      errExit("memcpy");
+    j += (iov+i)->iov_len;
+  }
 
-  // Perform the write() - return prematurely if == -1
-
+  // Perform the write()
+  bytes_written = write(fd, buff, total_bytes_to_write);
+  if (bytes_written == -1 || bytes_written != total_bytes_to_write)
+    errExit("write");
+  
   // free() the buffer
+  free(buff);
 
   // Return total bytes 
-  return 0;
+  return bytes_written;
 }
 
 
