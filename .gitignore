@@ -1,5 +1,6 @@
 *~
 *.o
 */bin
+*/tests
 *.a
 tlpi-dist/lib/ename.c.inc
