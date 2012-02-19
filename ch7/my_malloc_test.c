@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#define CUR_BRK sbrk((intptr_t)0)
+
 static void
 pass()
 {
@@ -11,23 +13,36 @@ pass()
 static void
 testing(char *item)
 {
-  printf("Testing %s: ", item);
+  printf("Testing %s\n", item);
 }
 
 void
 test_basic_allocation()
 {
+  
+  void *ptr, *ptr2;
+  int *i, *t;
+
   testing("Basic allocation");
 
   // Check sbrk()
+  ptr = CUR_BRK;
 
   // Allocate an int on the heap
+  i = (int *)malloc(sizeof(int));
 
   // Ensure that sbrk(0) has risen by sizeof(size_t) + sizeof(int)
-
-  // Test some basic pointer arithmetic
-
+  ptr2 = CUR_BRK;
+  assert((ptr2 - ptr) == (sizeof(size_t) + sizeof(int)) && "Test heap has been allocated");
+  
+  // Test basic pointer storage
+  *i = 24;
+  t = i;
+  assert((*t == 24) && "Test values can be retrieved");
+  
+  // Finally, pass if everything is OK
   pass();
+
 }
 
 void

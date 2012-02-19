@@ -1,4 +1,5 @@
 #include "my_malloc.h"
+#include <unistd.h> // For sbrk()
 
 struct mblock {
   size_t len;
@@ -14,7 +15,9 @@ malloc(size_t size)
 {
   return NULL;
   
-  // First, check the free list
+  // First, check the free list, and if anything with sufficient size is available
+  // just return that.
+
 }
 
 void
