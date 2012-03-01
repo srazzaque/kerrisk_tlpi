@@ -1,6 +1,6 @@
 CC = gcc
 TLPI_LIB = ../tlpi-dist/lib
-CFLAGS = -Wall -I${TLPI_LIB} -g
+CFLAGS = -Wall -I${TLPI_LIB} -ggdb
 COMMON_OBJS = ${TLPI_LIB}/error_functions.o ${TLPI_LIB}/get_num.o
 COMMON_DEPS = ${COMMON_OBJS} bin
 BUILDSTR = ${CC} ${CFLAGS} ${COMMON_OBJS}
@@ -11,6 +11,7 @@ bin/free_and_sbrk: free_and_sbrk.o ${COMMON_DEPS}
 	${BUILDSTR} free_and_sbrk.o -o bin/free_and_sbrk
 
 my_malloc.o: my_malloc.c my_malloc.h
+	${BUILDSTR} -c my_malloc.c
 
 my_malloc_sample_program.o: my_malloc_sample_program.c
 
@@ -36,9 +37,10 @@ clean:
 test: tests my_malloc_test 
 
 my_malloc_test.o: my_malloc_test.c
+	${BUILDSTR} -c my_malloc_test.c
 
-tests/my_malloc_test: my_malloc_test.o
-	${BUILDSTR} my_malloc_test.o -o tests/my_malloc_test
+tests/my_malloc_test: my_malloc_test.o my_malloc.o
+	${BUILDSTR} my_malloc_test.o my_malloc.o -o tests/my_malloc_test
 
 my_malloc_test: tests/my_malloc_test
 	./tests/my_malloc_test

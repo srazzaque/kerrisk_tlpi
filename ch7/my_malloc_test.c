@@ -1,6 +1,7 @@
-#include "my_malloc.c" // NOTE: this is NOT xxx.h on purpose.
+#include "my_malloc.h" // NOTE: this is NOT xxx.h on purpose.
 #include <assert.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define CUR_BRK sbrk((intptr_t)0)
 
