@@ -32,8 +32,8 @@ malloc(size_t size)
 	  (tmp->next)->prev = tmp->prev;
 	}
 
-	// Return a pointer to tmp.prev
-	return (void *)(tmp->prev);
+	// Return the address of tmp->prev
+	return &(tmp->prev);
       }
 
       last = tmp;
@@ -47,7 +47,7 @@ malloc(size_t size)
     last->next = tmp;
   }
 
-  // Return the memory just past the len
+  // Return the memory just past the len (i.e. address of tmp->prev)
   tmp = &(tmp->prev);
   return tmp;
 
