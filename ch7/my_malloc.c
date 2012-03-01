@@ -41,15 +41,15 @@ malloc(size_t size)
   }
 
   // Increase the system break by the amount specified,
-  tmp = (struct mblock *)sbrk((intptr_t)size);
+  tmp = (struct mblock *)sbrk((intptr_t)(size + sizeof(size_t)));
   tmp->len = size;
   if (last != NULL) {
     last->next = tmp;
   }
 
-  // Return
-  tmp = &(tmp->prev)
-  return tmp; // TODO: Get this return value to work properly
+  // Return the memory just past the len
+  tmp = &(tmp->prev);
+  return tmp;
 
 }
 
@@ -57,3 +57,4 @@ void
 free(void *ptr)
 {
 }
+                                                      
