@@ -5,10 +5,19 @@
 
 #define CUR_BRK sbrk((intptr_t)0)
 
+static int numFailed = 0;
+
 static void
 pass()
 {
   printf("[PASS]\n");
+}
+
+static void
+fail(const char *msg)
+{
+  printf("[FAIL] %s\n", msg);
+  numFailed++;
 }
 
 static void
@@ -51,33 +60,57 @@ test_basic_deallocation()
 {
   testing("Basic deallocation");
 
-  // Check sbrk()
-  
-  // Allocate 4 ints on the heap in separate calls to malloc
-
-  // Deallocate the second and the fourth
-
-  // Check the free list
-
-  pass();
+  fail("Not implemented yet");
 }
 
 void
 test_allocation_after_deallocation()
 {
-  testing("Allocation after deallocation");
 
-  // Allocate 10 ints using separate calls to malloc
+  void *ptr1, *ptr2;
+  int *tmp[4], *tmp2;
+  int i;
 
-  // Free two of them in the middle
+  testing("Allocation after free()");
+  
+  // Allocate 4 ints on the heap using separate calls to malloc
+  for (i=0; i < 4; i++) {
+    tmp[i] = (int *)malloc(sizeof(int));
+  }
+  
+  // Deallocate the second and the fourth
+  free(tmp[1]);
+  free(tmp[3]);
+  
+  // Allocate another int and ensure system break doesn't rise
+  ptr1 = CUR_BRK;
+  tmp2 = (int *)malloc(sizeof(int));
+  ptr2 = CUR_BRK;
+  assert((ptr1 == ptr2) && "System break doesn't change after malloc that follows free");
 
-  // Allocate another int using malloc
+  // Ensure that the memory address of tmp2 is after tmp[0] and before tmp[2]
+  assert((tmp2 > tmp[0]) && (tmp2 < tmp[2]) && "Memory block 2 was re-used");
+  
+  // Allocate another, sbrk should not rise
+  ptr1 = CUR_BRK;
+  tmp2 = (int *)malloc(sizeof(int));
+  ptr2 = CUR_BRK;
+  assert((ptr1 == ptr2) && "System break should not change");
 
-  // Ensure system break does not rise
+  // Assert that tmp2 > tmp[2]
+  assert((tmp2 > tmp[2]) && "Memory block 4 was re-used");
+  
+  // Allocate another, sbrk *SHOULD* rise
+  ptr1 = CUR_BRK;
+  tmp2 = (int *)malloc(sizeof(int));
+  ptr2 = CUR_BRK;
+  assert((ptr1 < ptr2) && "System break should change");
 
-  // Ensure the new memory location is as expected
+  // tmp2 should be > tmp[3]
+  assert((tmp2 > tmp[3]) && "Memory block was newly allocated");
 
   pass();
+
 }
 
 int
@@ -89,5 +122,6 @@ main(int argc, char *argv[])
   test_basic_allocation();
   test_basic_deallocation();
   test_allocation_after_deallocation();
-  return 0;
+
+  return numFailed;
 }

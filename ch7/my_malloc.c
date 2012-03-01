@@ -22,14 +22,28 @@ malloc(size_t size)
   if (head != NULL) {
     for( tmp = head; tmp != NULL ; tmp = tmp->next ) {
 
-      if (tmp->len > size) {
+      if (tmp->len >= size) {
       
 	// Previous 'next' must be changed to 'tmp.next'
-	(tmp->prev)->next = tmp->next;
+	if (tmp != head) {
 
-	// Next 'prev' (if not null) must be changed to 'tmp.prev'
-	if (tmp->next != NULL) {
-	  (tmp->next)->prev = tmp->prev;
+	  // i.e. if tmp is in the middle of the list somewhere, we
+	  // need to change the linkages on the previous and next
+	  // elements
+
+	  (tmp->prev)->next = tmp->next;
+
+	  // Next 'prev' (if not null) must be changed to 'tmp.prev'
+	  // if it isn't null
+	  if (tmp->next != NULL) {
+	    (tmp->next)->prev = tmp->prev;
+	  }
+
+	} else {
+
+	  // We're at the head of the list
+	  head = tmp->next;
+	  tmp->prev = NULL;
 	}
 
 	// Return the address of tmp->prev
@@ -49,12 +63,31 @@ malloc(size_t size)
 
   // Return the memory just past the len (i.e. address of tmp->prev)
   tmp = &(tmp->prev);
-  return tmp;
+  return (void *)tmp;
 
 }
 
 void
 free(void *ptr)
 {
+  struct mblock *tmp, *tmp2;
+
+  // Get a pointer to the mblock that this ptr falls within, and set the 'next' member
+  tmp = ptr - sizeof(size_t);
+  tmp->next = NULL;
+  
+  // Add to the end of the free list if the free list already exists, else
+  // create the free list
+  if (head != NULL) {
+    tmp2 = head;
+    while (tmp2->next != NULL) {
+      tmp2 = tmp2->next;
+    }
+    tmp2->next = tmp;
+    tmp->prev = tmp2;
+  } else {
+    head = tmp;
+  }
+
 }
                                                       
