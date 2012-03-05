@@ -58,9 +58,23 @@ test_basic_allocation()
 void
 test_basic_deallocation()
 {
+  void *ptr1, *ptr2;
+  int *tmp;
+
   testing("Basic deallocation");
 
-  fail("Not implemented yet");
+  ptr1 = CUR_BRK;
+  tmp = (int *)malloc(sizeof(int));
+  ptr2 = CUR_BRK;
+  assert( (ptr2 > ptr1) && "System break has risen" );
+  
+  ptr1 = CUR_BRK;
+  free(tmp);
+  tmp = (int *)malloc(sizeof(int));
+  ptr2 = CUR_BRK;
+  assert( (ptr2 == ptr1) && "System remains the same" );
+  
+  pass();
 }
 
 void
