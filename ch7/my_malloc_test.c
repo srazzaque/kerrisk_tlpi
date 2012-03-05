@@ -43,7 +43,7 @@ test_basic_allocation()
 
   // Ensure that sbrk(0) has risen by sizeof(size_t) + sizeof(int)
   ptr2 = CUR_BRK;
-  assert((ptr2 - ptr) == (sizeof(size_t) + sizeof(int)) && "Test heap has been allocated");
+  assert((ptr2 - ptr) >= (sizeof(size_t) + sizeof(int)) && "Test heap has been allocated");
   
   // Test basic pointer storage
   *i = 24;
@@ -68,19 +68,21 @@ test_allocation_after_deallocation()
 {
 
   void *ptr1, *ptr2;
-  int *tmp[4], *tmp2;
+  int *tmp[5], *tmp2;
+  long long *lng;
   int i;
 
   testing("Allocation after free()");
   
-  // Allocate 4 ints on the heap using separate calls to malloc
-  for (i=0; i < 4; i++) {
+  // Allocate 5 ints on the heap using separate calls to malloc
+  for (i=0; i < 5; i++) {
     tmp[i] = (int *)malloc(sizeof(int));
   }
   
   // Deallocate the second and the fourth
   free(tmp[1]);
   free(tmp[3]);
+  free(tmp[4]);
   
   // Allocate another int and ensure system break doesn't rise
   ptr1 = CUR_BRK;
@@ -90,6 +92,13 @@ test_allocation_after_deallocation()
 
   // Ensure that the memory address of tmp2 is after tmp[0] and before tmp[2]
   assert((tmp2 > tmp[0]) && (tmp2 < tmp[2]) && "Memory block 2 was re-used");
+
+  // Allocate a long - sbrk should rise
+  assert((sizeof(long long) > sizeof(int)) && "Ensure 'long long' is longer than int on this system");
+  ptr1 = CUR_BRK;
+  lng = (long long *)malloc(sizeof(long long));
+  ptr2 = CUR_BRK;
+  assert((ptr1 < ptr2) && "System should change because there are no free slots big enough for long long");
   
   // Allocate another, sbrk should not rise
   ptr1 = CUR_BRK;
@@ -100,11 +109,12 @@ test_allocation_after_deallocation()
   // Assert that tmp2 > tmp[2]
   assert((tmp2 > tmp[2]) && "Memory block 4 was re-used");
   
-  // Allocate another, sbrk *SHOULD* rise
+  // Free the long and allocate another int, sbrk not rise and free block should be taken from middle
+  free(lng);
   ptr1 = CUR_BRK;
   tmp2 = (int *)malloc(sizeof(int));
   ptr2 = CUR_BRK;
-  assert((ptr1 < ptr2) && "System break should change");
+  assert((ptr1 == ptr2) && "System break should change");
 
   // tmp2 should be > tmp[3]
   assert((tmp2 > tmp[3]) && "Memory block was newly allocated");

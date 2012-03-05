@@ -55,7 +55,9 @@ malloc(size_t size)
   }
 
   // Increase the system break by the amount specified,
-  tmp = (struct mblock *)sbrk((intptr_t)(size + sizeof(size_t)));
+  intptr_t size_requested = (size + sizeof(size_t));
+  intptr_t size_required = size_requested > sizeof(struct mblock) ? size_requested : sizeof(struct mblock);
+  tmp = (struct mblock *)sbrk(size_required);
   tmp->len = size;
   if (last != NULL) {
     last->next = tmp;
